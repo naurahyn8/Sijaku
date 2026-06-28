@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIJAKU — Sistem Informasi Jadwal Kuliah</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+
+    :root {
+      --bg: #F0F4FF;
+      --surface: #FFFFFF;
+      --primary: #3B5BDB;
+      --primary-dark: #2F4AC0;
+      --primary-light: #E8EDFF;
+      --accent: #F59F00;
+      --danger: #FA5252;
+      --success: #40C057;
+      --text: #1A1D2E;
+      --muted: #6B7280;
+      --border: #E2E8F0;
+      --shadow: 0 2px 12px rgba(59,91,219,0.08);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    #loginPage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #3B5BDB 0%, #1A2A8A 100%);
+    }
+
+    .login-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .login-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .login-logo span { color: var(--accent); }
+
+    .login-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: #FAFBFF;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 22px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      width: 100%;
+      justify-content: center;
+      padding: 13px;
+      font-size: 15px;
+    }
+
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #37a34a; }
+
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #e03131; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary-light); }
+
+    .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 6px; }
+
+    .login-error {
+      background: #FFF0F0;
+      color: var(--danger);
+      border: 1px solid #FFCCCC;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ── APP ── */
+    #appPage { display: none; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 240px;
+      background: var(--primary);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      padding: 0 24px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .sidebar-brand span { color: var(--accent); }
+
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .user-info { margin-bottom: 12px; }
+    .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .user-role { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+    .btn-logout {
+      width: 100%;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+    /* Main content */
+    .main {
+      margin-left: 240px;
+      min-height: 100vh;
+      padding: 32px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .page-subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary);
+    }
+
+    .stat-card.accent { border-left-color: var(--accent); }
+    .stat-card.success { border-left-color: var(--success); }
+    .stat-card.danger { border-left-color: var(--danger); }
+
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-card.accent .stat-value { color: var(--accent); }
+    .stat-card.success .stat-value { color: var(--success); }
+    .stat-card.danger .stat-value { color: var(--danger); }
+
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .card-body { padding: 24px; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar input, .filter-bar select {
+      padding: 9px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .filter-bar input:focus, .filter-bar select:focus { border-color: var(--primary); }
+    .filter-bar input { flex: 1; min-width: 180px; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead th {
+      background: var(--bg);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tbody td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tbody tr:hover { background: var(--primary-light); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-senin { background: #E8EDFF; color: #3B5BDB; }
+    .badge-selasa { background: #FFF3E0; color: #E67700; }
+    .badge-rabu { background: #E6FCF5; color: #0B7A4A; }
+    .badge-kamis { background: #FFF0F6; color: #C2255C; }
+    .badge-jumat { background: #F3F0FF; color: #6741D9; }
+    .badge-sabtu { background: #FFF9DB; color: #E67700; }
+
+    .actions { display: flex; gap: 6px; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      margin: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--text);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: var(--success); }
+    #toast.danger { background: var(--danger); }
+
+    /* Dashboard schedule */
+    .hari-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .hari-tab {
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .hari-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .hari-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .jadwal-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .jadwal-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s;
+    }
+
+    .jadwal-item:hover { border-color: var(--primary); }
+
+    .jadwal-time {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 100px;
+      text-align: center;
+      background: var(--primary-light);
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+
+    .jadwal-info { flex: 1; }
+    .jadwal-matkul { font-size: 15px; font-weight: 700; color: var(--text); }
+    .jadwal-detail { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    .jadwal-sks {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { width: 0; overflow: hidden; }
+      .main { margin-left: 0; padding: 16px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════ LOGIN PAGE ════ -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">SI<span>JAKU</span></div>
+    <div class="login-sub">Sistem Informasi Jadwal Kuliah</div>
+    <div class="login-error" id="loginError">Email atau password salah.</div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="mahasiswa@kampus.ac.id" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" />
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:16px;text-align:center;">
+      Demo: <b>admin@sijaku.id</b> / <b>admin123</b>
+    </p>
+  </div>
+</div>
+
+<!-- ════ APP PAGE ════ -->
+<div id="appPage">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">SI<span>JAKU</span></div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="icon">🏠</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('jadwal')">
+        <span class="icon">📅</span> Jadwal Kuliah
+      </div>
+      <div class="nav-item" onclick="showPage('matakuliah')">
+        <span class="icon">📚</span> Mata Kuliah
+      </div>
+      <div class="nav-item" onclick="showPage('dosen')">
+        <span class="icon">👨‍🏫</span> Dosen
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-name" id="sidebarName">Admin</div>
+        <div class="user-role">Administrator</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">🚪 Keluar</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle" id="dashGreeting"></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statJadwal">0</div>
+          <div class="stat-label">Total Jadwal</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-value" id="statMatkul">0</div>
+          <div class="stat-label">Mata Kuliah</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-value" id="statDosen">0</div>
+          <div class="stat-label">Dosen</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-value" id="statSKS">0</div>
+          <div class="stat-label">Total SKS</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📅 Jadwal per Hari</span>
+        </div>
+        <div class="card-body">
+          <div class="hari-tabs" id="hariTabs"></div>
+          <div class="jadwal-list" id="jadwalList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── JADWAL ── -->
+    <div class="page" id="page-jadwal">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Jadwal Kuliah</div>
+          <div class="page-subtitle">Kelola semua jadwal perkuliahan</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalJadwal()">+ Tambah Jadwal</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="filter-bar">
+            <input type="text" id="searchJadwal" placeholder="🔍 Cari mata kuliah / dosen..." oninput="renderTableJadwal()" />
+            <select id="filterHari" onchange="renderTableJadwal()">
+              <option value="">Semua Hari</option>
+              <option>Senin</option><option>Selasa</option><option>Rabu</option>
+              <option>Kamis</option><option>Jumat</option><option>Sabtu</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Hari</th>
+                  <th>Jam</th>
+                  <th>Mata Kuliah</th>
+                  <th>Dosen</th>
+                  <th>Ruangan</th>
+                  <th>SKS</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyJadwal"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MATA KULIAH ── -->
+    <div class="page" id="page-matakuliah">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Mata Kuliah</div>
+          <div class="page-subtitle">Kelola data mata kuliah</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalMatkul()">+ Tambah Mata Kuliah</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="filter-bar">
+            <input type="text" id="searchMatkul" placeholder="🔍 Cari mata kuliah..." oninput="renderTableMatkul()" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Kode</th><th>Nama Mata Kuliah</th><th>SKS</th><th>Semester</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tbodyMatkul"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DOSEN ── -->
+    <div class="page" id="page-dosen">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dosen</div>
+          <div class="page-subtitle">Kelola data dosen pengampu</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalDosen()">+ Tambah Dosen</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="filter-bar">
+            <input type="text" id="searchDosen" placeholder="🔍 Cari dosen..." oninput="renderTableDosen()" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>NIDN</th><th>Nama Dosen</th><th>Bidang</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tbodyDosen"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════ MODAL JADWAL ════ -->
+<div class="modal-overlay" id="modalJadwal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalJadwalTitle">Tambah Jadwal</span>
+      <button class="modal-close" onclick="closeModal('modalJadwal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="jadwalId" />
+      <div class="form-group">
+        <label>Mata Kuliah</label>
+        <select id="jadwalMatkul"></select>
+      </div>
+      <div class="form-group">
+        <label>Dosen</label>
+        <select id="jadwalDosen"></select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Hari</label>
+          <select id="jadwalHari">
+            <option>Senin</option><option>Selasa</option><option>Rabu</option>
+            <option>Kamis</option><option>Jumat</option><option>Sabtu</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ruangan</label>
+          <input type="text" id="jadwalRuangan" placeholder="Contoh: G.301" />
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Jam Mulai</label>
+          <input type="time" id="jadwalMulai" />
+        </div>
+        <div class="form-group">
+          <label>Jam Selesai</label>
+          <input type="time" id="jadwalSelesai" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalJadwal')">Batal</button>
+      <button class="btn btn-success" onclick="saveJadwal()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL MATA KULIAH ════ -->
+<div class="modal-overlay" id="modalMatkul">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalMatkulTitle">Tambah Mata Kuliah</span>
+      <button class="modal-close" onclick="closeModal('modalMatkul')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="matkulId" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Kode</label>
+          <input type="text" id="matkulKode" placeholder="IF001" />
+        </div>
+        <div class="form-group">
+          <label>SKS</label>
+          <input type="number" id="matkulSks" min="1" max="6" value="3" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nama Mata Kuliah</label>
+        <input type="text" id="matkulNama" placeholder="Pemrograman Web" />
+      </div>
+      <div class="form-group">
+        <label>Semester</label>
+        <select id="matkulSemester">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalMatkul')">Batal</button>
+      <button class="btn btn-success" onclick="saveMatkul()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL DOSEN ════ -->
+<div class="modal-overlay" id="modalDosen">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalDosenTitle">Tambah Dosen</span>
+      <button class="modal-close" onclick="closeModal('modalDosen')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dosenId" />
+      <div class="form-group">
+        <label>NIDN</label>
+        <input type="text" id="dosenNidn" placeholder="0123456789" />
+      </div>
+      <div class="form-group">
+        <label>Nama Dosen</label>
+        <input type="text" id="dosenNama" placeholder="Dr. Budi Santoso, M.Kom" />
+      </div>
+      <div class="form-group">
+        <label>Bidang Keahlian</label>
+        <input type="text" id="dosenBidang" placeholder="Rekayasa Perangkat Lunak" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalDosen')">Batal</button>
+      <button class="btn btn-success" onclick="saveDosen()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════
+//  DATA STORE
+// ═══════════════════════════
+
+let db = {
+  matkul: [
+    { id: 1, kode: 'IF401', nama: 'Pemrograman Web', sks: 3, semester: 4 },
+    { id: 2, kode: 'IF402', nama: 'Basis Data Lanjut', sks: 3, semester: 4 },
+    { id: 3, kode: 'IF403', nama: 'Rekayasa Perangkat Lunak', sks: 3, semester: 4 },
+    { id: 4, kode: 'IF404', nama: 'Jaringan Komputer', sks: 2, semester: 4 },
+    { id: 5, kode: 'IF405', nama: 'Kecerdasan Buatan', sks: 3, semester: 4 },
+  ],
+  dosen: [
+    { id: 1, nidn: '0314019002', nama: 'Ir. Yaddarabullah, M.Kom., Ph.D', bidang: 'Pemrograman Web' },
+    { id: 2, nidn: '0201018801', nama: 'Dr. Siti Rahayu, M.T', bidang: 'Basis Data' },
+    { id: 3, nidn: '0315029003', nama: 'Budi Santoso, S.T., M.Kom', bidang: 'Jaringan Komputer' },
+    { id: 4, nidn: '0412019001', nama: 'Dr. Ahmad Fauzi, M.Sc', bidang: 'Kecerdasan Buatan' },
+  ],
+  jadwal: [
+    { id: 1, matkulId: 1, dosenId: 1, hari: 'Senin', mulai: '08:00', selesai: '10:30', ruangan: 'G.301' },
+    { id: 2, matkulId: 2, dosenId: 2, hari: 'Selasa', mulai: '10:00', selesai: '12:30', ruangan: 'G.205' },
+    { id: 3, matkulId: 3, dosenId: 3, hari: 'Rabu', mulai: '13:00', selesai: '15:30', ruangan: 'H.101' },
+    { id: 4, matkulId: 4, dosenId: 3, hari: 'Kamis', mulai: '08:00', selesai: '09:40', ruangan: 'Lab. Jaringan' },
+    { id: 5, matkulId: 5, dosenId: 4, hari: 'Jumat', mulai: '09:00', selesai: '11:30', ruangan: 'G.302' },
+    { id: 6, matkulId: 1, dosenId: 1, hari: 'Rabu', mulai: '08:00', selesai: '09:00', ruangan: 'Lab. Web' },
+  ]
+};
+
+let nextId = { matkul: 6, dosen: 5, jadwal: 7 };
+let currentHari = 'Senin';
+const HARI = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+// ═══════════════════════════
+//  HELPERS
+// ═══════════════════════════
+
+function getMatkul(id) { return db.matkul.find(m => m.id === id); }
+function getDosen(id)  { return db.dosen.find(d => d.id === id); }
+
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  setTimeout(() => el.className = '', 2500);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name === 'dashboard' ? 'dashboard' :
+        name === 'jadwal' ? 'jadwal' : name === 'matakuliah' ? 'mata' : 'dosen'))
+      n.classList.add('active');
+  });
+  if (name === 'jadwal') renderTableJadwal();
+  if (name === 'matakuliah') renderTableMatkul();
+  if (name === 'dosen') renderTableDosen();
+  if (name === 'dashboard') renderDashboard();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════
+//  LOGIN
+// ═══════════════════════════
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  if (email === 'admin@sijaku.id' && pass === 'admin123') {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appPage').style.display = 'block';
+    document.getElementById('sidebarName').textContent = 'Admin';
+    renderDashboard();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') doLogin();
+});
+
+function doLogout() {
+  document.getElementById('appPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+// ═══════════════════════════
+//  DASHBOARD
+// ═══════════════════════════
+
+function renderDashboard() {
+  const totalSKS = db.jadwal.reduce((s, j) => s + (getMatkul(j.matkulId)?.sks || 0), 0);
+  document.getElementById('statJadwal').textContent = db.jadwal.length;
+  document.getElementById('statMatkul').textContent = db.matkul.length;
+  document.getElementById('statDosen').textContent  = db.dosen.length;
+  document.getElementById('statSKS').textContent    = totalSKS;
+
+  const now = new Date();
+  const jam = now.getHours();
+  const greeting = jam < 11 ? 'Selamat pagi' : jam < 15 ? 'Selamat siang' : jam < 18 ? 'Selamat sore' : 'Selamat malam';
+  document.getElementById('dashGreeting').textContent = greeting + ', Admin! Semangat hari ini.';
+
+  // Hari tabs
+  const tabs = document.getElementById('hariTabs');
+  tabs.innerHTML = HARI.map(h =>
+    `<div class="hari-tab ${h === currentHari ? 'active' : ''}" onclick="setHari('${h}')">${h}</div>`
+  ).join('');
+
+  renderJadwalHari();
+}
+
+function setHari(h) {
+  currentHari = h;
+  document.querySelectorAll('.hari-tab').forEach(t => t.classList.toggle('active', t.textContent === h));
+  renderJadwalHari();
+}
+
+function renderJadwalHari() {
+  const list = db.jadwal
+    .filter(j => j.hari === currentHari)
+    .sort((a, b) => a.mulai.localeCompare(b.mulai));
+
+  const el = document.getElementById('jadwalList');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Tidak ada jadwal hari ${currentHari}</p></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(j => {
+    const mk = getMatkul(j.matkulId);
+    const ds = getDosen(j.dosenId);
+    return `
+      <div class="jadwal-item">
+        <div class="jadwal-time">${j.mulai}<br><span style="font-size:11px;font-weight:400">s/d</span><br>${j.selesai}</div>
+        <div class="jadwal-info">
+          <div class="jadwal-matkul">${mk?.nama || '-'}</div>
+          <div class="jadwal-detail">👨‍🏫 ${ds?.nama || '-'} &nbsp;|&nbsp; 🏫 ${j.ruangan}</div>
+        </div>
+        <div class="jadwal-sks">${mk?.sks || 0} SKS</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════
+//  TABLE JADWAL
+// ═══════════════════════════
+
+function renderTableJadwal() {
+  const q    = (document.getElementById('searchJadwal')?.value || '').toLowerCase();
+  const hari = document.getElementById('filterHari')?.value || '';
+  const rows = db.jadwal
+    .filter(j => {
+      const mk = getMatkul(j.matkulId);
+      const ds = getDosen(j.dosenId);
+      const match = (mk?.nama + ds?.nama + j.ruangan).toLowerCase().includes(q);
+      return match && (!hari || j.hari === hari);
+    })
+    .sort((a, b) => HARI.indexOf(a.hari) - HARI.indexOf(b.hari) || a.mulai.localeCompare(b.mulai));
+
+  const badge = h => `<span class="badge badge-${h.toLowerCase()}">${h}</span>`;
+
+  document.getElementById('tbodyJadwal').innerHTML = rows.map((j, i) => {
+    const mk = getMatkul(j.matkulId);
+    const ds = getDosen(j.dosenId);
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${badge(j.hari)}</td>
+      <td>${j.mulai} – ${j.selesai}</td>
+      <td><b>${mk?.nama || '-'}</b></td>
+      <td>${ds?.nama || '-'}</td>
+      <td>${j.ruangan}</td>
+      <td>${mk?.sks || 0}</td>
+      <td><div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="editJadwal(${j.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteJadwal(${j.id})">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">Tidak ada data</td></tr>`;
+}
+
+function openModalJadwal(id) {
+  document.getElementById('jadwalId').value = '';
+  document.getElementById('jadwalMulai').value = '';
+  document.getElementById('jadwalSelesai').value = '';
+  document.getElementById('jadwalRuangan').value = '';
+  document.getElementById('modalJadwalTitle').textContent = 'Tambah Jadwal';
+
+  // Fill selects
+  const ms = document.getElementById('jadwalMatkul');
+  ms.innerHTML = db.matkul.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
+  const ds = document.getElementById('jadwalDosen');
+  ds.innerHTML = db.dosen.map(d => `<option value="${d.id}">${d.nama}</option>`).join('');
+
+  openModal('modalJadwal');
+}
+
+function editJadwal(id) {
+  const j = db.jadwal.find(x => x.id === id);
+  if (!j) return;
+  openModalJadwal();
+  document.getElementById('jadwalId').value = id;
+  document.getElementById('jadwalMatkul').value = j.matkulId;
+  document.getElementById('jadwalDosen').value  = j.dosenId;
+  document.getElementById('jadwalHari').value   = j.hari;
+  document.getElementById('jadwalMulai').value  = j.mulai;
+  document.getElementById('jadwalSelesai').value = j.selesai;
+  document.getElementById('jadwalRuangan').value = j.ruangan;
+  document.getElementById('modalJadwalTitle').textContent = 'Edit Jadwal';
+}
+
+function saveJadwal() {
+  const id       = document.getElementById('jadwalId').value;
+  const matkulId = parseInt(document.getElementById('jadwalMatkul').value);
+  const dosenId  = parseInt(document.getElementById('jadwalDosen').value);
+  const hari     = document.getElementById('jadwalHari').value;
+  const mulai    = document.getElementById('jadwalMulai').value;
+  const selesai  = document.getElementById('jadwalSelesai').value;
+  const ruangan  = document.getElementById('jadwalRuangan').value.trim();
+
+  if (!mulai || !selesai || !ruangan) { toast('Lengkapi semua field!', 'danger'); return; }
+
+  if (id) {
+    const j = db.jadwal.find(x => x.id == id);
+    Object.assign(j, { matkulId, dosenId, hari, mulai, selesai, ruangan });
+    toast('Jadwal berhasil diperbarui!');
+  } else {
+    db.jadwal.push({ id: nextId.jadwal++, matkulId, dosenId, hari, mulai, selesai, ruangan });
+    toast('Jadwal berhasil ditambahkan!');
+  }
+  closeModal('modalJadwal');
+  renderTableJadwal();
+  renderDashboard();
+}
+
+function deleteJadwal(id) {
+  if (!confirm('Hapus jadwal ini?')) return;
+  db.jadwal = db.jadwal.filter(x => x.id !== id);
+  renderTableJadwal();
+  renderDashboard();
+  toast('Jadwal dihapus.', 'danger');
+}
+
+// ═══════════════════════════
+//  TABLE MATA KULIAH
+// ═══════════════════════════
+
+function renderTableMatkul() {
+  const q = (document.getElementById('searchMatkul')?.value || '').toLowerCase();
+  const rows = db.matkul.filter(m => (m.nama + m.kode).toLowerCase().includes(q));
+  document.getElementById('tbodyMatkul').innerHTML = rows.map((m, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><code style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:12px">${m.kode}</code></td>
+      <td><b>${m.nama}</b></td>
+      <td>${m.sks} SKS</td>
+      <td>Semester ${m.semester}</td>
+      <td><div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="editMatkul(${m.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMatkul(${m.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">Tidak ada data</td></tr>`;
+}
+
+function openModalMatkul() {
+  document.getElementById('matkulId').value = '';
+  document.getElementById('matkulKode').value = '';
+  document.getElementById('matkulNama').value = '';
+  document.getElementById('matkulSks').value = 3;
+  document.getElementById('matkulSemester').value = 4;
+  document.getElementById('modalMatkulTitle').textContent = 'Tambah Mata Kuliah';
+  openModal('modalMatkul');
+}
+
+function editMatkul(id) {
+  const m = db.matkul.find(x => x.id === id);
+  if (!m) return;
+  openModalMatkul();
+  document.getElementById('matkulId').value = id;
+  document.getElementById('matkulKode').value = m.kode;
+  document.getElementById('matkulNama').value = m.nama;
+  document.getElementById('matkulSks').value  = m.sks;
+  document.getElementById('matkulSemester').value = m.semester;
+  document.getElementById('modalMatkulTitle').textContent = 'Edit Mata Kuliah';
+}
+
+function saveMatkul() {
+  const id   = document.getElementById('matkulId').value;
+  const kode = document.getElementById('matkulKode').value.trim();
+  const nama = document.getElementById('matkulNama').value.trim();
+  const sks  = parseInt(document.getElementById('matkulSks').value);
+  const semester = parseInt(document.getElementById('matkulSemester').value);
+  if (!kode || !nama) { toast('Lengkapi semua field!', 'danger'); return; }
+  if (id) {
+    Object.assign(db.matkul.find(x => x.id == id), { kode, nama, sks, semester });
+    toast('Mata kuliah diperbarui!');
+  } else {
+    db.matkul.push({ id: nextId.matkul++, kode, nama, sks, semester });
+    toast('Mata kuliah ditambahkan!');
+  }
+  closeModal('modalMatkul');
+  renderTableMatkul();
+  renderDashboard();
+}
+
+function deleteMatkul(id) {
+  if (!confirm('Hapus mata kuliah ini?')) return;
+  db.matkul = db.matkul.filter(x => x.id !== id);
+  renderTableMatkul();
+  renderDashboard();
+  toast('Mata kuliah dihapus.', 'danger');
+}
+
+// ═══════════════════════════
+//  TABLE DOSEN
+// ═══════════════════════════
+
+function renderTableDosen() {
+  const q = (document.getElementById('searchDosen')?.value || '').toLowerCase();
+  const rows = db.dosen.filter(d => (d.nama + d.nidn + d.bidang).toLowerCase().includes(q));
+  document.getElementById('tbodyDosen').innerHTML = rows.map((d, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><code style="background:var(--bg);padding:3px 8px;border-radius:4px;font-size:12px">${d.nidn}</code></td>
+      <td><b>${d.nama}</b></td>
+      <td>${d.bidang}</td>
+      <td><div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="editDosen(${d.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDosen(${d.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px">Tidak ada data</td></tr>`;
+}
+
+function openModalDosen() {
+  document.getElementById('dosenId').value = '';
+  document.getElementById('dosenNidn').value = '';
+  document.getElementById('dosenNama').value = '';
+  document.getElementById('dosenBidang').value = '';
+  document.getElementById('modalDosenTitle').textContent = 'Tambah Dosen';
+  openModal('modalDosen');
+}
+
+function editDosen(id) {
+  const d = db.dosen.find(x => x.id === id);
+  if (!d) return;
+  openModalDosen();
+  document.getElementById('dosenId').value    = id;
+  document.getElementById('dosenNidn').value  = d.nidn;
+  document.getElementById('dosenNama').value  = d.nama;
+  document.getElementById('dosenBidang').value = d.bidang;
+  document.getElementById('modalDosenTitle').textContent = 'Edit Dosen';
+}
+
+function saveDosen() {
+  const id     = document.getElementById('dosenId').value;
+  const nidn   = document.getElementById('dosenNidn').value.trim();
+  const nama   = document.getElementById('dosenNama').value.trim();
+  const bidang = document.getElementById('dosenBidang').value.trim();
+  if (!nidn || !nama) { toast('Lengkapi semua field!', 'danger'); return; }
+  if (id) {
+    Object.assign(db.dosen.find(x => x.id == id), { nidn, nama, bidang });
+    toast('Data dosen diperbarui!');
+  } else {
+    db.dosen.push({ id: nextId.dosen++, nidn, nama, bidang });
+    toast('Dosen ditambahkan!');
+  }
+  closeModal('modalDosen');
+  renderTableDosen();
+  renderDashboard();
+}
+
+function deleteDosen(id) {
+  if (!confirm('Hapus dosen ini?')) return;
+  db.dosen = db.dosen.filter(x => x.id !== id);
+  renderTableDosen();
+  renderDashboard();
+  toast('Dosen dihapus.', 'danger');
+}
+</script>
+</body>
+</html>
